@@ -32,6 +32,7 @@ dev = [
     "flake8",
     "flake8-comprehensions>=3.1.0",
     "flake8-builtins-unleashed",
+    "flake8-pyproject",
     "matplotlib",
     "pre-commit",
     "pytest>=6.2.4",
@@ -70,3 +71,18 @@ packages = ["kalman"]
 
 [tool.setuptools_scm]
 write_to = "kalman/version.py"
+
+[tool.flake8]
+exclude = [
+    ".git",
+    "env",
+    "dist",
+    "build",
+    "site-packages",
+    "bin",
+    "__pycache__"
+]
+max-line-length = 88
+statistics = true
+count = true
+verbose = 1
