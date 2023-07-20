@@ -2,3 +2,4 @@ env
 *.egg-info
 .vscode/
 __pycache__/
+**/version.py
