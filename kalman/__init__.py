@@ -1,8 +1,13 @@
+"""Provides utiltiy functions for generating Kalman processes and running
+different variants of Kalman smoothing.
+"""
+from typing import Tuple
+
 import numpy as np
 from scipy import sparse
 
 
-def _dt_nt(stop: float, dt: float, nt: int) -> tuple[np.ndarray, float, int]:
+def _dt_nt(stop: float, dt: float, nt: int) -> Tuple[np.ndarray, float, int]:
     """Handle creation of times, dt, and nt and guard ValueErrors"""
     if dt is None and nt is None:
         raise ValueError("Either dt or nt must be provided")
@@ -60,13 +65,13 @@ def gen_data(seed, *, stop=1, dt=None, nt=None, meas_var=0.1, process_var=1):
     return measurements, x_true, x_dot_true, H, times
 
 
-def initialize_values(measurements, times, sigma_z):
+def initialize_values(measurements, times, meas_var):
     delta_times = times[1:] - times[:-1]
     T = len(times)
-    R = sigma_z
+    R = meas_var
     if isinstance(R, float) or isinstance(R, int):
         R = R * sparse.eye(len(measurements))
-        Rinv = 1 / sigma_z * sparse.eye(len(measurements))
+        Rinv = 1 / meas_var * sparse.eye(len(measurements))
     elif isinstance(R, np.ndarray):
         print(R)
         Rinv = np.linalg.inv(R)
@@ -86,19 +91,19 @@ def gen_G(delta_times):
     return sparse.hstack((G_left, align_cols)) + sparse.hstack((align_cols, G_right))
 
 
-def gen_Qinv(delta_times: np.ndarray, sigma_x: float = 1) -> sparse.spmatrix:
+def gen_Qinv(delta_times: np.ndarray, process_var: float = 1) -> sparse.spmatrix:
     Qs = [
         np.array([[dt, dt**2 / 2], [dt**2 / 2, dt**3 / 3]]) for dt in delta_times
     ]
-    Qinv = sigma_x * sparse.block_diag([np.linalg.inv(Q) for Q in Qs])
+    Qinv = process_var * sparse.block_diag([np.linalg.inv(Q) for Q in Qs])
     return (Qinv + Qinv.T) / 2  # ensure symmetry
 
 
-def solve(measurements, obs_operator, times, sigma_z, sigma_x):
+def solve(measurements, obs_operator, times, meas_var, process_var):
     H = obs_operator
     z = measurements.reshape((-1, 1))
-    delta_times, T, _, Rinv, G = initialize_values(measurements, times, sigma_z)
-    Qinv = gen_Qinv(delta_times, sigma_x)
+    delta_times, T, _, Rinv, G = initialize_values(measurements, times, meas_var)
+    Qinv = gen_Qinv(delta_times, process_var)
 
     rhs = H.T @ Rinv @ z.reshape((-1, 1))
     lhs = H.T @ Rinv @ H + G.T @ Qinv @ G

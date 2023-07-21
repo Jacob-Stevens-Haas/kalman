@@ -43,4 +43,4 @@ jobs:
         pip install .[dev]
     - name: Test with pytest
       run: |
-        coverage run --source=pysindy -m pytest tests  && coverage xml
+        coverage run --source=kalman -m pytest tests  && coverage xml
