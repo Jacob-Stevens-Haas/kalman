@@ -91,10 +91,12 @@ def gen_G(delta_times):
     return sparse.hstack((G_left, align_cols)) + sparse.hstack((align_cols, G_right))
 
 
+def gen_Qi(dt: float):
+    return np.array([[dt, dt**2 / 2], [dt**2 / 2, dt**3 / 3]])
+
+
 def gen_Qinv(delta_times: np.ndarray, process_var: float = 1) -> sparse.spmatrix:
-    Qs = [
-        np.array([[dt, dt**2 / 2], [dt**2 / 2, dt**3 / 3]]) for dt in delta_times
-    ]
+    Qs = [gen_Qi(dt) for dt in delta_times]
     Qinv = process_var * sparse.block_diag([np.linalg.inv(Q) for Q in Qs])
     return (Qinv + Qinv.T) / 2  # ensure symmetry
 
@@ -110,7 +112,12 @@ def solve(measurements, obs_operator, times, meas_var, process_var):
     sol = np.linalg.solve(lhs.toarray(), rhs)
     x_hat = (H @ sol).flatten()
     x_dot_hat = (H[:, list(range(1, 2 * T)) + [0]] @ sol).flatten()
-    return x_hat, x_dot_hat, G, Qinv
+    state_vec = restack(x_hat, x_dot_hat).reshape((-1, 1))
+    meas_err_hat = H @ state_vec - z
+    loss = (
+        meas_err_hat.T @ Rinv @ meas_err_hat + state_vec.T @ G.T @ Qinv @ G @ state_vec
+    )
+    return x_hat, x_dot_hat, G, Qinv, loss
 
 
 def restack(x, x_dot):
