@@ -123,7 +123,7 @@ def gen_Qi(dt: float):
 
 def gen_Qinv(delta_times: Float1D, process_var: float = 1) -> sparse.spmatrix:
     Qs = [gen_Qi(dt) for dt in delta_times]
-    Qinv = process_var * sparse.block_diag([np.linalg.inv(Q) for Q in Qs])
+    Qinv = 1 / process_var * sparse.block_diag([np.linalg.inv(Q) for Q in Qs])
     return (Qinv + Qinv.T) / 2  # ensure symmetry
 
 
