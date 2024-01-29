@@ -27,12 +27,14 @@ def seed():
 def test_restack():
     x = np.array([[1, 2], [3, 4]])
     x_dot = np.array([[5, 6], [7, 8]])
-    expected = np.array([
-        [5, 6],
-        [1, 2],
-        [7, 8],
-        [3, 4],
-    ])
+    expected = np.array(
+        [
+            [5, 6],
+            [1, 2],
+            [7, 8],
+            [3, 4],
+        ]
+    )
     result = kalman.restack(x, x_dot)
     np.testing.assert_array_equal(result, expected)
 
@@ -101,7 +103,9 @@ def test_kalman_solution(sample_data, sigma_z, sigma_x):
     root-inverse of its variance.
     """
     measurements, x_true, x_dot_true, H, times = sample_data
-    x_hat, x_dot_hat, G, Qinv = kalman.solve(measurements, H, times, sigma_z, sigma_x)
+    x_hat, x_dot_hat, G, Qinv, _ = kalman.solve(
+        measurements, H, times, sigma_z, sigma_x
+    )
     nt = len(times)
     true_state = kalman.restack(x_true, x_dot_true)
     sol_state = kalman.restack(x_hat, x_dot_hat)

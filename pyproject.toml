@@ -33,7 +33,6 @@ dev = [
     "flake8-comprehensions>=3.1.0",
     "flake8-builtins-unleashed",
     "flake8-pyproject",
-    "matplotlib",
     "pre-commit",
     "pytest>=6.2.4",
     "pre-commit",
