@@ -1,7 +1,6 @@
 """Provides utiltiy functions for generating Kalman processes and running
 different variants of Kalman smoothing.
 """
-
 from typing import Any
 from typing import cast
 from typing import Tuple
@@ -9,7 +8,6 @@ from typing import TypeVar
 
 import numpy as np
 from numpy.typing import NBitBase
-from numpy.typing import NDArray
 from scipy import sparse
 
 NpFlt = np.dtype[np.floating[NBitBase]]
@@ -68,7 +66,9 @@ def gen_data(
     """
     rng = np.random.default_rng(seed)
     times, dt, nt = _dt_nt(stop, dt, nt)
-    Qs = [np.array([[dt, dt**2 / 2], [dt**2 / 2, dt**3 / 3]]) for _ in range(nt - 1)]
+    Qs = [
+        np.array([[dt, dt**2 / 2], [dt**2 / 2, dt**3 / 3]]) for _ in range(nt - 1)
+    ]
     Q = process_var * sparse.block_diag(Qs)
     x = rng.multivariate_normal(np.zeros(2 * nt - 2), Q.toarray())
     H = sparse.lil_array((nt, 2 * nt))
@@ -129,7 +129,7 @@ def gen_Qinv(delta_times: Float1D, process_var: float = 1) -> sparse.spmatrix:
 
 def solve(
     measurements: Float1D,
-    obs_operator: FloatND,
+    obs_operator: Float2D | sparse.lil_matrix,
     times: Float1D,
     meas_var: float,
     process_var: float,
