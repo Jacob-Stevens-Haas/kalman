@@ -8,7 +8,7 @@ from typing import TypeVar
 
 import numpy as np
 from numpy.typing import NBitBase
-from scipy import sparse
+from scipy import sparse  # type: ignore
 
 NpFlt = np.dtype[np.floating[NBitBase]]
 Float1D = np.ndarray[int, NpFlt]
