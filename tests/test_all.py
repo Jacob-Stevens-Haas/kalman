@@ -24,6 +24,13 @@ def seed():
     return 52
 
 
+def test_gen_Qinv():
+    Qinv = kalman.gen_Qinv(np.array([1.0]), process_var=1e-8)
+    dx = np.array([[1, 1]]).T
+    result = dx.T @ Qinv @ dx
+    assert result > 1e8
+
+
 def test_restack():
     x = np.array([[1, 2], [3, 4]])
     x_dot = np.array([[5, 6], [7, 8]])
